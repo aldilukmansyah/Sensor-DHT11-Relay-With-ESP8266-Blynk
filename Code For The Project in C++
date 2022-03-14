@@ -1,0 +1,41 @@
+#include <Arduino.h>
+
+//Activates communication between the Blynk App and Serial Monitor:
+#define BLYNK_PRINT Serial
+
+#include <ESP8266WiFi.h>  //Import a "ESP8266WiFi" library.
+
+#include <BlynkSimpleEsp8266.h> //Blynk Library initiation
+#include <Adafruit_Sensor.h>
+#include <DHT.h>            // dht library initiation
+
+char auth[] = "dSj1NjkPJ5GYhVu9be0YFdHpK9pE50j9"; // Blynk Auth Token
+char ssid[] = "MyWIfe"; // SSID Wifi Router
+char pass[] = "Candice21"; // Password Wifi Router
+
+#define DHTPIN D2           // Make variable DHT in pin D2
+#define DHTTYPE DHT11       // Determine DHT type
+DHT dht(DHTPIN, DHTTYPE);   // Make Object DHT
+
+void setup() {
+	Serial.begin(9600);      // Open Serisal Comunication at baudrate 9600
+	dht.begin();             // object DHT initiation
+  Blynk.begin(auth,ssid,pass);
+}
+
+void loop() {
+	float hum = dht.readHumidity();      // Read Humidity
+	float temp = dht.readTemperature();  // Read Temperature
+	if (isnan(hum) || isnan(temp)) {     // Check if the sensor is eror
+      Serial.println("Gagal Membaca DHT sensor!");
+      return;
+	}
+	Serial.println("Humidity: " + (String)hum + " %");       // Print Humidity (%)
+	Serial.println("Temperature: " + (String)temp + " *C");  // Print Temperature (*C)
+	delay(500);
+
+
+  Blynk.virtualWrite(V1, hum);
+  Blynk.virtualWrite(V2, temp);
+  Blynk.run();
+}
